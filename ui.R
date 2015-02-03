@@ -1,27 +1,35 @@
 shinyUI(
   navbarPage(title = "ShinyDist",
     tabPanel(title = "Distributions",
-      navlistPanel(
+      navlistPanel(widths = c(3, 9),
         "Choose a distribution",
         tabPanel("Normal Distribution",
+          h2("Normal Distribution & Significance Testing"),
           inputPanel(
             numericInput("norm_mean", label = "Mean", value = 0, step = .1),
             numericInput("norm_sd", label = "SD", value = 1, min = .01, step = .1),
             selectInput("norm_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("norm_sides", label = "Direction", choices = side.choices)
           ),
+          h3(textOutput("data_norm")),
           plotOutput("plot_norm")
         ),
         tabPanel("t-Distribution",
-          inputPanel(),
-          plotOutput("plot-t")
+          h2("t-Distribution & Significance Testing"),
+          inputPanel(
+            numericInput("t_df", label = "DF", min = 1, value = 1, step = 1),
+            numericInput("t_ncp", label = "NCP", value = 0, min = .01, step = .1),
+            selectInput("t_alpha", label = "Alpha", choices = alpha.choices),
+            selectInput("t_sides", label = "Direction", choices = side.choices)
+          ),
+          plotOutput("plot_t")
         ),
         tabPanel("Chi^2-Distribution",
-          inputPanel(),
+          inputPanel("NYI"),
           plotOutput("plot-chisq")
         ),
         tabPanel("F-Distribution",
-          inputPanel(),
+          inputPanel("NYI"),
           plotOutput("plot-f")
         )
       )
