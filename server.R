@@ -57,4 +57,21 @@ shinyServer(function(input, output) {
     #                    linetype = "longdash", colour = "red")
     print(p)
   })
+
+  #### Chi^2-distribution
+  output$plot_chisq <- renderPlot({
+    df        <- input$chi_df
+    alpha     <- as.numeric(input$chi_alpha)
+
+    validate(
+      need(input$chi_df != 0, "Degrees of freedom must be greater than zero!")
+    )
+
+    p <- ggplot(data.frame(x = c(0, 40)), aes(x)) +
+      ylim(0, .42) +
+      stat_function(fun = dchisq, args = list(df = df))
+    p <- p + geom_vline(x = qchisq(1 - alpha, df = df),
+                        linetype = "longdash", colour = "red")
+    print(p)
+  })
 })
