@@ -22,14 +22,20 @@ shinyUI(
             selectInput("t_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("t_sides", label = "Direction", choices = side.choices)
           ),
+          h3(textOutput("data_t")),
           plotOutput("plot_t")
         ),
         tabPanel("Chi^2-Distribution",
-          inputPanel("NYI"),
-          plotOutput("plot-chisq")
+          h2("Chi^2-Distribution & Significance Testing"),
+          inputPanel(
+            numericInput("chi_df", label = "DF", min = 1, value = 1, step = 1),
+            selectInput("chi_alpha", label = "Alpha", choices = alpha.choices)
+          ),
+          h3(textOutput("data_chi")),
+          plotOutput("plot_chisq")
         ),
         tabPanel("F-Distribution",
-          inputPanel("NYI"),
+          inputPanel("Not yet implemented. Maybe it never will."),
           plotOutput("plot-f")
         )
       )
