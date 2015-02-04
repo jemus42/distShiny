@@ -22,3 +22,18 @@ crit_z <- function(alpha = .05, direction = "left"){
   }
   return(crit)
 }
+
+crit_t <- function(alpha = .05, direction = "left", df = 1, ncp = 0){
+  if (!(direction %in% c("left", "right", "two.sided"))){
+    stop("Unknown argument to direction, must be 'left', 'right' or 'two.sided'")
+  }
+  if (direction == "left"){
+    crit <- qt(alpha, df = df, ncp = ncp)
+  } else if (direction == "right"){
+    crit <- qt(1 - alpha, df = df, ncp = ncp)
+  } else if (direction == "two.sided"){
+    alpha <- alpha/2
+    crit <- c(qt(alpha, df = df, ncp = ncp), qt(1 - alpha, df = df, ncp = ncp))
+  }
+  return(crit)
+}

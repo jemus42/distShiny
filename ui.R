@@ -33,11 +33,11 @@ shinyUI(
           ),
           h3(textOutput("data_chi")),
           plotOutput("plot_chisq")
-        ),
-        tabPanel("F-Distribution",
-          inputPanel("Not yet implemented. Maybe it never will."),
-          plotOutput("plot-f")
-        )
+        )#,
+        #tabPanel("F-Distribution",
+        #  inputPanel("Not yet implemented. Maybe it never will."),
+        #  plotOutput("plot-f")
+        #)
       )
     )
   )

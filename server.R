@@ -53,9 +53,24 @@ shinyServer(function(input, output) {
     p <- ggplot(data.frame(x = c(-10, 10)), aes(x)) +
       ylim(0, .42) +
       stat_function(fun = dt, args = list(df = df, ncp = ncp))
-    #p <- p + geom_vline(x = ((crit_z(alpha, direction) * sd) + mean),
-    #                    linetype = "longdash", colour = "red")
+    p <- p + geom_vline(x = crit_t(alpha, direction, df, ncp),
+                        linetype = "longdash", colour = "red")
     print(p)
+  })
+
+  output$data_t <- renderText({
+    df        <- input$t_df
+    ncp       <- input$t_ncp
+    alpha     <- as.numeric(input$t_alpha)
+    direction <- input$t_sides
+
+    crit.t <- round(crit_t(alpha, direction, df, ncp), 2)
+
+    if (direction != "two.sided"){
+      print(paste0("The critical value is ", crit.t))
+    } else {
+      return(paste0("The critical values are ", crit.t[1], " and ", crit.t[2]))
+    }
   })
 
   #### Chi^2-distribution
@@ -73,5 +88,14 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(x = qchisq(1 - alpha, df = df),
                         linetype = "longdash", colour = "red")
     print(p)
+  })
+
+  output$data_chi <- renderText({
+    df        <- input$chi_df
+    alpha     <- as.numeric(input$chi_alpha)
+
+    crit.chi <- round(qchisq(1 - alpha, df = df), 2)
+
+    return(paste0("The critical value is ", crit.chi))
   })
 })
