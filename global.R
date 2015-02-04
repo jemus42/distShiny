@@ -1,5 +1,6 @@
 library("shiny")
 library("ggplot2")
+library("rmarkdown")
 
 #### Defining Choices ####
 alpha.choices <- c("5%" = 0.05, "1%" = 0.01, "10%" = 0.1)

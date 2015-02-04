@@ -7,7 +7,7 @@ shinyUI(
           h2("Normal Distribution & Significance Testing"),
           inputPanel(
             numericInput("norm_mean", label = "Mean", value = 0, step = .1),
-            numericInput("norm_sd", label = "SD", value = 1, min = .01, step = .1),
+            numericInput("norm_sd", label = "Standard Deviation", value = 1, min = .01, step = .1),
             selectInput("norm_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("norm_sides", label = "Direction", choices = side.choices)
           ),
@@ -17,8 +17,8 @@ shinyUI(
         tabPanel("t-Distribution",
           h2("t-Distribution & Significance Testing"),
           inputPanel(
-            numericInput("t_df", label = "DF", min = 1, value = 1, step = 1),
-            numericInput("t_ncp", label = "NCP", value = 0, min = .01, step = .1),
+            numericInput("t_df", label = "Degrees of Freedom", min = 1, value = 1, step = 1),
+            numericInput("t_ncp", label = "Non-Centrality Parameter", value = 0, min = .01, step = .1),
             selectInput("t_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("t_sides", label = "Direction", choices = side.choices)
           ),
@@ -28,7 +28,7 @@ shinyUI(
         tabPanel("Chi^2-Distribution",
           h2("Chi^2-Distribution & Significance Testing"),
           inputPanel(
-            numericInput("chi_df", label = "DF", min = 1, value = 1, step = 1),
+            numericInput("chi_df", label = "Degrees of Freedom", min = 1, value = 1, step = 1),
             selectInput("chi_alpha", label = "Alpha", choices = alpha.choices)
           ),
           h3(textOutput("data_chi")),
