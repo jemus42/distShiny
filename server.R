@@ -14,7 +14,7 @@ shinyServer(function(input, output) {
     ymax      <- dnorm(mean, mean = mean, sd = sd)
 
     p <- ggplot(data.frame(x = c(mean-4*sd, mean+4*sd)), aes(x)) +
-                ylim(0, ymax) +
+                ylim(0, ymax) + ylab("P(x)") +
                 stat_function(fun = dnorm, args = list(mean = mean, sd = sd))
     p <- p + geom_vline(x = ((crit_z(alpha, direction) * sd) + mean),
                         linetype = "longdash", colour = "red")
@@ -31,7 +31,7 @@ shinyServer(function(input, output) {
     crit.n <- round((crit_z(alpha, direction) * sd) + mean, 2)
 
     if (direction != "two.sided"){
-      print(paste0("The critical value is ", crit.n, " (zcrit ", crit.z, ")"))
+      return(paste0("The critical value is ", crit.n, " (zcrit ", crit.z, ")"))
     } else {
       return(paste0("The critical values are ", crit.n[1],
                    " (lower zcrit ", crit.z[1], ") and ",
@@ -51,7 +51,7 @@ shinyServer(function(input, output) {
     )
 
     p <- ggplot(data.frame(x = c(-10, 10)), aes(x)) +
-      ylim(0, .42) +
+      ylim(0, .42) + ylab("P(x)") +
       stat_function(fun = dt, args = list(df = df, ncp = ncp))
     p <- p + geom_vline(x = crit_t(alpha, direction, df, ncp),
                         linetype = "longdash", colour = "red")
@@ -83,7 +83,7 @@ shinyServer(function(input, output) {
     )
 
     p <- ggplot(data.frame(x = c(0, 40)), aes(x)) +
-      ylim(0, .42) +
+      ylim(0, .42) + ylab("P(x)") +
       stat_function(fun = dchisq, args = list(df = df))
     p <- p + geom_vline(x = qchisq(1 - alpha, df = df),
                         linetype = "longdash", colour = "red")
@@ -94,7 +94,7 @@ shinyServer(function(input, output) {
     df        <- input$chi_df
     alpha     <- as.numeric(input$chi_alpha)
 
-    crit.chi <- round(qchisq(1 - alpha, df = df), 2)
+    crit.chi  <- round(qchisq(1 - alpha, df = df), 2)
 
     return(paste0("The critical value is ", crit.chi))
   })
