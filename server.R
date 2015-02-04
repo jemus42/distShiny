@@ -67,7 +67,7 @@ shinyServer(function(input, output) {
     crit.t <- round(crit_t(alpha, direction, df, ncp), 2)
 
     if (direction != "two.sided"){
-      print(paste0("The critical value is ", crit.t))
+      return(paste0("The critical value is ", crit.t))
     } else {
       return(paste0("The critical values are ", crit.t[1], " and ", crit.t[2]))
     }
