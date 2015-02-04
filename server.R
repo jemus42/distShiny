@@ -13,11 +13,11 @@ shinyServer(function(input, output) {
 
     ymax      <- dnorm(mean, mean = mean, sd = sd)
 
-    p <- ggplot(data.frame(x = c(mean-4*sd, mean+4*sd)), aes(x)) +
-                ylim(0, ymax) + ylab("P(x)") +
-                stat_function(fun = dnorm, args = list(mean = mean, sd = sd))
+    p <- ggplot(data.frame(x = c(mean-4*sd, mean+4*sd)), aes(x))
+    p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = sd))
     p <- p + geom_vline(x = ((crit_z(alpha, direction) * sd) + mean),
                         linetype = "longdash", colour = "red")
+    p <- p + ylim(0, ymax) + ylab("P(x)")
     print(p)
   })
 
@@ -50,11 +50,11 @@ shinyServer(function(input, output) {
       need(input$t_df != 0, "Degrees of freedom must be greater than zero!")
     )
 
-    p <- ggplot(data.frame(x = c(-10, 10)), aes(x)) +
-      ylim(0, .42) + ylab("P(x)") +
-      stat_function(fun = dt, args = list(df = df, ncp = ncp))
+    p <- ggplot(data.frame(x = c(-10, 10)), aes(x))
+    p <- p + stat_function(fun = dt, args = list(df = df, ncp = ncp))
     p <- p + geom_vline(x = crit_t(alpha, direction, df, ncp),
                         linetype = "longdash", colour = "red")
+    p <- p + ylim(0, .42) + ylab("P(x)")
     print(p)
   })
 
@@ -82,11 +82,11 @@ shinyServer(function(input, output) {
       need(input$chi_df != 0, "Degrees of freedom must be greater than zero!")
     )
 
-    p <- ggplot(data.frame(x = c(0, 40)), aes(x)) +
-      ylim(0, .42) + ylab("P(x)") +
-      stat_function(fun = dchisq, args = list(df = df))
+    p <- ggplot(data.frame(x = c(0.001, 40)), aes(x))
+    p <- p + stat_function(fun = dchisq, args = list(df = df))
     p <- p + geom_vline(x = qchisq(1 - alpha, df = df),
                         linetype = "longdash", colour = "red")
+    p <- p + ylim(0, .42) + ylab("P(x)")
     print(p)
   })
 
