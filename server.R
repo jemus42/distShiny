@@ -6,12 +6,11 @@ shinyServer(function(input, output) {
     sd        <- input$norm_sd
     alpha     <- as.numeric(input$norm_alpha)
     direction <- input$norm_sides
+    ymax      <- dnorm(mean, mean = mean, sd = sd)
 
     validate(
       need(input$norm_sd != 0, "Standard deviation must be greater than zero!")
     )
-
-    ymax      <- dnorm(mean, mean = mean, sd = sd)
 
     p <- ggplot(data.frame(x = c(mean-4*sd, mean+4*sd)), aes(x))
     p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = sd))

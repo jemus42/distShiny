@@ -39,6 +39,9 @@ shinyUI(
         #  plotOutput("plot-f")
         #)
       )
+    ),
+    tabPanel("About",
+      includeMarkdown("about.md")
     )
   )
 )
