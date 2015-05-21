@@ -1,5 +1,5 @@
 shinyUI(
-  navbarPage(title = "ShinyDist",
+  navbarPage(title = "ShinyDist v1.1",
     tabPanel(title = "Distributions", icon = icon("area-chart"),
       navlistPanel(widths = c(3, 9),
         "Choose a distribution",
@@ -8,7 +8,7 @@ shinyUI(
           inputPanel(
             numericInput("norm_mean", label = "Mean", value = 0, step = .1),
             numericInput("norm_sd",   label = "Standard Deviation", value = 1, min = .01, step = .1),
-            numericInput("norm_n",   label = "Sample Size", value = 1, min = 1, step = 1),
+            numericInput("norm_n",    label = "Sample Size", value = 1, min = 1, step = 1),
             selectInput("norm_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("norm_sides", label = "Direction", choices = side.choices)
           ),
