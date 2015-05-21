@@ -2,19 +2,21 @@ shinyServer(function(input, output) {
 
   #### Normal distribution #####
   output$plot_norm <- renderPlot({
+    n         <- ceiling(input$norm_n)
     mean      <- input$norm_mean
     sd        <- input$norm_sd
+    se        <- sd/sqrt(n)
     alpha     <- as.numeric(input$norm_alpha)
     direction <- input$norm_sides
-    ymax      <- dnorm(mean, mean = mean, sd = sd)
+    ymax      <- dnorm(mean, mean = mean, sd = se)
 
-    validate(
-      need(input$norm_sd != 0, "Standard deviation must be greater than zero!")
-    )
+    validate(need(input$norm_sd != 0, "Standard deviation must be greater than zero!"))
+    validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
+    validate(need(!is.na(input$norm_mean), "Mean must be set!"))
 
-    p <- ggplot(data.frame(x = c(mean-4*sd, mean+4*sd)), aes(x))
-    p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = sd))
-    p <- p + geom_vline(x = ((crit_z(alpha, direction) * sd) + mean),
+    p <- ggplot(data.frame(x = c(mean-4*se, mean+4*se)), aes(x))
+    p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = se))
+    p <- p + geom_vline(x = ((crit_z(alpha, direction) * se) + mean),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, ymax) + ylab("P(x)")
     print(p)
@@ -23,6 +25,7 @@ shinyServer(function(input, output) {
   output$data_norm <- renderText({
     mean      <- input$norm_mean
     sd        <- input$norm_sd
+    se        <- sd/sqrt(ceiling(input$norm_n))
     alpha     <- as.numeric(input$norm_alpha)
     direction <- input$norm_sides
 
@@ -30,11 +33,14 @@ shinyServer(function(input, output) {
     crit.n <- round((crit_z(alpha, direction) * sd) + mean, 2)
 
     if (direction != "two.sided"){
-      return(paste0("The critical value is ", crit.n, " (zcrit ", crit.z, ")"))
+      return(paste0("The critical value is ", crit.n,
+                    " (zcrit ", crit.z, ") — ",
+                    "Standard Error = ", round(se, 2)))
     } else {
       return(paste0("The critical values are ", crit.n[1],
                    " (lower zcrit ", crit.z[1], ") and ",
-                   crit.n[2], " (upper zcrit ", crit.z[2], ")"))
+                   crit.n[2], " (upper zcrit ", crit.z[2], ") — ",
+                   "Standard Error = ", round(se, 2)))
     }
   })
 
