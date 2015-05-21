@@ -30,7 +30,7 @@ shinyServer(function(input, output) {
     direction <- input$norm_sides
 
     crit.z <- round(crit_z(alpha, direction), 2)
-    crit.n <- round((crit_z(alpha, direction) * sd) + mean, 2)
+    crit.n <- round((crit_z(alpha, direction) * se) + mean, 2)
 
     if (direction != "two.sided"){
       return(paste0("The critical value is ", crit.n,
