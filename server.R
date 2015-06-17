@@ -103,4 +103,35 @@ shinyServer(function(input, output) {
 
     return(paste0("The critical value is ", crit.chi))
   })
+
+  #### F-Distribution ####
+  output$plot_f <- renderPlot({
+    df1       <- input$f_df1
+    df2       <- input$f_df2
+    alpha     <- as.numeric(input$f_alpha)
+
+    validate(
+      need(input$f_df1 != 0, "Degrees of freedom must be greater than zero!"),
+      need(input$f_df2 != 0, "Degrees of freedom must be greater than zero!")
+    )
+
+    p <- ggplot(data.frame(x = c(0, 10)), aes(x))
+    p <- p + stat_function(fun = df, args = list(df1 = df1, df2 = df2))
+    p <- p + geom_vline(x = crit_f(alpha, df1, df2),
+                        linetype = "longdash", colour = "red")
+    p <- p + ylab("P(x)")
+    print(p)
+  })
+
+  output$data_f <- renderText({
+    df1       <- input$f_df1
+    df2       <- input$f_df2
+    alpha     <- as.numeric(input$f_alpha)
+
+    crit.f <- round(crit_f(alpha, df1, df2), 2)
+
+    return(paste0("The critical value is ", crit.f))
+
+  })
+
 })

@@ -36,3 +36,10 @@ crit_t <- function(alpha = .05, direction = "left", df = 1, ncp = 0){
   }
   return(crit)
 }
+
+crit_f <- function(alpha = .05, df1 = 1, df2 = 1){
+
+  crit <- qf(1 - alpha, df1 = df1, df2 = df2)
+
+  return(crit)
+}

@@ -1,5 +1,5 @@
 shinyUI(
-  navbarPage(title = "ShinyDist v1.1",
+  navbarPage(title = "ShinyDist v1.2",
     tabPanel(title = "Distributions", icon = icon("area-chart"),
       navlistPanel(widths = c(3, 9),
         "Choose a distribution",
@@ -34,11 +34,17 @@ shinyUI(
           ),
           h3(textOutput("data_chi")),
           plotOutput("plot_chisq")
-        )#,
-        #tabPanel("F-Distribution",
-        #  inputPanel("Not yet implemented. Maybe it never will."),
-        #  plotOutput("plot-f")
-        #)
+        ),
+        tabPanel("F-Distribution",
+          h2("F-Distribution & Significance Testing"),
+          inputPanel(
+            numericInput("f_df1",  label = "Degrees of Freedom 1 (upper)", min = 1, value = 1, step = 1),
+            numericInput("f_df2",  label = "Degrees of Freedom 2 (lower)", min = 1, value = 1, step = 1),
+            selectInput("f_alpha", label = "Alpha", choices = alpha.choices)
+          ),
+          h3(textOutput("data_f")),
+          plotOutput("plot_f")
+        )
       )
     ),
     tabPanel("About", icon = icon("question"),
