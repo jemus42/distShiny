@@ -38,8 +38,8 @@ shinyUI(
         tabPanel("F-Distribution",
           h2("F-Distribution & Significance Testing"),
           inputPanel(
-            numericInput("f_df1",  label = "Degrees of Freedom 1 (upper)", min = 1, value = 1, step = 1),
-            numericInput("f_df2",  label = "Degrees of Freedom 2 (lower)", min = 1, value = 1, step = 1),
+            numericInput("f_df1",  label = "Degrees of Freedom 1 (numerator)", min = 1, value = 1, step = 1),
+            numericInput("f_df2",  label = "Degrees of Freedom 2 (denominator)", min = 1, value = 1, step = 1),
             selectInput("f_alpha", label = "Alpha", choices = alpha.choices)
           ),
           h3(textOutput("data_f")),
