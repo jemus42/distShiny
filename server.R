@@ -14,9 +14,11 @@ shinyServer(function(input, output) {
     validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
     validate(need(!is.na(input$norm_mean), "Mean must be set!"))
 
-    p <- ggplot(data.frame(x = c(mean-4*se, mean+4*se)), aes(x))
+    df <- data.frame(x = c(mean-4*se, mean+4*se))
+
+    p <- ggplot(data = df, aes(x = x))
     p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = se))
-    p <- p + geom_vline(x = ((crit_z(alpha, direction) * se) + mean),
+    p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, ymax) + ylab("P(x)")
     print(p)
@@ -57,7 +59,7 @@ shinyServer(function(input, output) {
 
     p <- ggplot(data.frame(x = c(-10, 10)), aes(x))
     p <- p + stat_function(fun = dt, args = list(df = df, ncp = ncp))
-    p <- p + geom_vline(x = crit_t(alpha, direction, df, ncp),
+    p <- p + geom_vline(xintercept = crit_t(alpha, direction, df, ncp),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, .42) + ylab("P(x)")
     print(p)
@@ -89,7 +91,7 @@ shinyServer(function(input, output) {
 
     p <- ggplot(data.frame(x = c(0.001, 40)), aes(x))
     p <- p + stat_function(fun = dchisq, args = list(df = df))
-    p <- p + geom_vline(x = qchisq(1 - alpha, df = df),
+    p <- p + geom_vline(xintercept = qchisq(1 - alpha, df = df),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, .42) + ylab("P(x)")
     print(p)
@@ -117,7 +119,7 @@ shinyServer(function(input, output) {
 
     p <- ggplot(data.frame(x = c(0, 10)), aes(x))
     p <- p + stat_function(fun = df, args = list(df1 = df1, df2 = df2))
-    p <- p + geom_vline(x = crit_f(alpha, df1, df2),
+    p <- p + geom_vline(xintercept = crit_f(alpha, df1, df2),
                         linetype = "longdash", colour = "red")
     p <- p + ylab("P(x)")
     print(p)
