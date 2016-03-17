@@ -61,12 +61,12 @@ powervis <- function(mu0 = 0, mu1 = 1, sd = 1, n = 1, alpha = 0.05) {
     scale_x_continuous(breaks = seq(-5, 10, 1)) +
     scale_fill_brewer(palette = "Set1",
                       labels = c(expression(alpha), expression(beta), expression(1 - beta))) +
-    annotate("text", x = 0, y = .3, label = "H[0]", parse = TRUE, size = 6, family = "Palatino") +
-    annotate("text", x = mu1, y = .3, label = "H[1]", parse = TRUE, size = 6, family = "Palatino") +
+    annotate("text", x = 0, y = .25, label = "H[0]", parse = TRUE, size = 6, family = "Palatino") +
+    annotate("text", x = mu1, y = .25, label = "H[1]", parse = TRUE, size = 6, family = "Palatino") +
     labs(x = "x", y = expression(P(x)), title = "", fill = "") +
     theme_bw(base_family = "Palatino") +
     theme(panel.grid.major = element_line(size = 0.1),
           panel.grid.minor = element_line(linetype = "blank"),
           legend.position = c(.1, .5),
-          legend.text = element_text(size = rel(1)))
+          legend.text = element_text(size = rel(1.5)))
 }
