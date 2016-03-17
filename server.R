@@ -21,6 +21,7 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, ymax) + ylab("P(x)")
+    p <- p + theme_bw()
     print(p)
   })
 
@@ -62,6 +63,7 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = crit_t(alpha, direction, df, ncp),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, .42) + ylab("P(x)")
+    p <- p + theme_bw()
     print(p)
   })
 
@@ -94,6 +96,7 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = qchisq(1 - alpha, df = df),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, .42) + ylab("P(x)")
+    p <- p + theme_bw()
     print(p)
   })
 
@@ -122,6 +125,7 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = crit_f(alpha, df1, df2),
                         linetype = "longdash", colour = "red")
     p <- p + ylab("P(x)")
+    p <- p + theme_bw()
     print(p)
   })
 
@@ -136,4 +140,20 @@ shinyServer(function(input, output) {
 
   })
 
+  #### Plot Errors
+  output$plot_errors <- renderPlot({
+    n         <- ceiling(input$norm_n2)
+    mean      <- input$norm_mean2
+    sd        <- input$norm_sd2
+    se        <- sd/sqrt(n)
+    alpha     <- as.numeric(input$norm_alpha2)
+    #direction <- input$norm_sides
+
+    validate(need(input$norm_sd != 0, "Standard deviation must be greater than zero!"))
+    validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
+    validate(need(!is.na(input$norm_mean), "Mean must be set!"))
+
+    p <- powervis(mu0 = 0, mu1 = mean, sd = sd, n = n, alpha = alpha)
+    print(p)
+  })
 })

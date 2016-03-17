@@ -1,5 +1,5 @@
 shinyUI(
-  navbarPage(title = "ShinyDist v1.2.1",
+  navbarPage(title = "ShinyDist v2.0.0",
     tabPanel(title = "Distributions", icon = icon("area-chart"),
       navlistPanel(widths = c(3, 9),
         "Choose a distribution",
@@ -46,6 +46,19 @@ shinyUI(
           plotOutput("plot_f")
         )
       )
+    ),
+    tabPanel("Error Types", icon = icon("area-chart"),
+       tabPanel("Normal Distribution",
+                h2("Normal Distribution: Error Types"),
+                inputPanel(
+                  sliderInput("norm_mean2", label = "Mean of H1", min = 0, max = 8, value = 2, step = .1),
+                  sliderInput("norm_sd2",   label = "Standard Deviation", min = .1, max = 5, value = 1, step = .1),
+                  sliderInput("norm_n2",    label = "Sample Size", min = 1, max = 10, value = 1, step = 1),
+                  selectInput("norm_alpha2", label = "Alpha", choices = alpha.choices)
+                  #selectInput("norm_sides", label = "Direction", choices = side.choices)
+                ),
+                plotOutput("plot_errors")
+       )
     ),
     tabPanel("About", icon = icon("question"),
       includeMarkdown("about.md")
