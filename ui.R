@@ -1,5 +1,5 @@
 shinyUI(
-  navbarPage(title = "ShinyDist v2.0.0",
+  navbarPage(title = "ShinyDist v2.0.1",
     tabPanel(title = "Distributions", icon = icon("area-chart"),
       navlistPanel(widths = c(3, 9),
         "Choose a distribution",
