@@ -52,6 +52,8 @@ powervis <- function(mu0 = 0, mu1 = 1, sd = 1, n = 1, alpha = 0.05) {
   beta    <- data.frame(x = seq(-4, crit, resolution), y = dnorm(seq(-4, crit, resolution), mu1, sd))
   alphadf <- data.frame(x = seq(crit, 7, resolution),  y = dnorm(seq(crit, 7, resolution), mu0, sd))
 
+  ymax <- dnorm(0, mean = 0, sd = sd) * .8
+
   ggplot(data = NULL, aes(x = -4:7)) +
     stat_function(fun = dnorm, args = list(mean = mu0, sd = sd)) +
     stat_function(fun = dnorm, args = list(mean = mu1, sd = sd)) +
@@ -61,8 +63,8 @@ powervis <- function(mu0 = 0, mu1 = 1, sd = 1, n = 1, alpha = 0.05) {
     scale_x_continuous(breaks = seq(-5, 10, 1)) +
     scale_fill_brewer(palette = "Set1",
                       labels = c(expression(alpha), expression(beta), expression(1 - beta))) +
-    annotate("text", x = 0, y = .25, label = "H[0]", parse = TRUE, size = 6, family = "Palatino") +
-    annotate("text", x = mu1, y = .25, label = "H[1]", parse = TRUE, size = 6, family = "Palatino") +
+    annotate("text", x = 0, y = ymax, label = "H[0]", parse = TRUE, size = 6, family = "Palatino") +
+    annotate("text", x = mu1, y = ymax, label = "H[1]", parse = TRUE, size = 6, family = "Palatino") +
     labs(x = "x", y = expression(P(x)), title = "", fill = "") +
     theme_bw(base_family = "Palatino") +
     theme(panel.grid.major = element_line(size = 0.1),
