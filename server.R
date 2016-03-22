@@ -164,7 +164,7 @@ shinyServer(function(input, output) {
     alpha     <- as.numeric(input$norm_alpha2)
     crit      <- qnorm(1 - alpha, 0, se)
 
-    tab <- data.frame(d     = round((mean / se), 2),
+    tab <- data.frame(d     = round((mean / sd), 2),
                       beta  = paste0(round(pnorm(crit, mean = mean, sd = se), 2) * 100, "%"),
                       power = paste0(round(pnorm(crit, mean = mean, sd = se, lower.tail = F), 2) * 100, "%"),
                       row.names = NULL)
