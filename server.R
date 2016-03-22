@@ -147,7 +147,6 @@ shinyServer(function(input, output) {
     sd        <- input$norm_sd2
     se        <- sd/sqrt(n)
     alpha     <- as.numeric(input$norm_alpha2)
-    #direction <- input$norm_sides
 
     validate(need(input$norm_sd != 0, "Standard deviation must be greater than zero!"))
     validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
@@ -155,5 +154,27 @@ shinyServer(function(input, output) {
 
     p <- powervis(mu0 = 0, mu1 = mean, sd = sd, n = n, alpha = alpha)
     print(p)
+  })
+
+  output$error_table <- renderTable({
+    n         <- ceiling(input$norm_n2)
+    mean      <- input$norm_mean2
+    sd        <- input$norm_sd2
+    se        <- sd/sqrt(n)
+    alpha     <- as.numeric(input$norm_alpha2)
+    crit      <- qnorm(1 - alpha, 0, se)
+
+    tab <- data.frame(d     = round((mean / se), 2),
+                      beta  = paste0(round(pnorm(crit, mean = mean, sd = se), 2) * 100, "%"),
+                      power = paste0(round(pnorm(crit, mean = mean, sd = se, lower.tail = F), 2) * 100, "%"),
+                      row.names = NULL)
+
+    # ret <- sprintf("<a>Effect size: <strong>%s</strong><br />
+    #                Beta Error: <strong>%s</strong><br />
+    #                Power: <strong>%s</strong></a>",
+    #                tab$d, tab$beta, tab$power)
+
+    return(tab)
+
   })
 })

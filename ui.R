@@ -57,6 +57,8 @@ shinyUI(
                   selectInput("norm_alpha2", label = "Alpha", choices = alpha.choices)
                   #selectInput("norm_sides", label = "Direction", choices = side.choices)
                 ),
+                tags$div(align = "center",
+                         tableOutput("error_table")),
                 plotOutput("plot_errors")
        )
     ),
