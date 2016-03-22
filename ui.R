@@ -53,7 +53,7 @@ shinyUI(
                 inputPanel(
                   sliderInput("norm_mean2", label = "Mean of H1", min = 0, max = 8, value = 2, step = .1),
                   sliderInput("norm_sd2",   label = "Standard Deviation", min = .1, max = 4, value = 1, step = .1),
-                  sliderInput("norm_n2",    label = "Sample Size", min = 1, max = 10, value = 1, step = 1),
+                  sliderInput("norm_n2",    label = "Sample Size", min = 1, max = 50, value = 1, step = 1),
                   selectInput("norm_alpha2", label = "Alpha", choices = alpha.choices)
                   #selectInput("norm_sides", label = "Direction", choices = side.choices)
                 ),
