@@ -30,7 +30,8 @@ shinyUI(
           h2("Chi^2-Distribution & Significance Testing"),
           inputPanel(
             numericInput("chi_df",   label = "Degrees of Freedom", min = 1, value = 1, step = 1),
-            selectInput("chi_alpha", label = "Alpha", choices = alpha.choices)
+            selectInput("chi_alpha", label = "Alpha", choices = alpha.choices),
+            sliderInput("chi_test",  label = "p-Value", min = 0, max = 1, step = .01, value = .5)
           ),
           h3(textOutput("data_chi")),
           plotOutput("plot_chisq")
@@ -61,6 +62,22 @@ shinyUI(
                          tableOutput("error_table")),
                 plotOutput("plot_errors")
        )
+    ),
+    tabPanel("Law of Large Numbers", icon = icon("bar-chart"),
+             h2("The Law of Large Numbers"),
+             inputPanel(
+               numericInput("lln_sample_size", label = "Sample Size", min = 2, value = 100, step = 1)
+               # selectInput("lln_example", label = "Event Type", choices = c(
+               #   "Coin Toss", "6-sided Dice"
+               # ))
+             ),
+             plotOutput("plot_lln")
+    ),
+    tabPanel("Central Limit Theorem", icon = icon("bar-chart"),
+             h2("The Central Limit Theorem"),
+             inputPanel(
+               numericInput("clt_sample_size", label = "Sample Size", min = 2, value = 10, step = 1)
+             )
     ),
     tabPanel("About", icon = icon("question"),
       includeMarkdown("about.md")

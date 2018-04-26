@@ -1,6 +1,9 @@
 library("shiny")
+library("dplyr")
 library("ggplot2")
 library("rmarkdown")
+
+theme_set(theme_classic())
 
 #### Defining Choices ####
 alpha.choices <- c("5%" = 0.05, "1%" = 0.01, "10%" = 0.1)

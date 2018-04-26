@@ -21,7 +21,6 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, ymax) + ylab("P(x)")
-    p <- p + theme_bw()
     print(p)
   })
 
@@ -63,7 +62,6 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = crit_t(alpha, direction, df, ncp),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, .42) + ylab("P(x)")
-    p <- p + theme_bw()
     print(p)
   })
 
@@ -86,17 +84,50 @@ shinyServer(function(input, output) {
   output$plot_chisq <- renderPlot({
     df        <- input$chi_df
     alpha     <- as.numeric(input$chi_alpha)
+    crit      <- qchisq(1 - alpha, df)
+    p         <- 1 - as.numeric(input$chi_test)
+    test      <- qchisq(p, df)
+
+    chidf <- tibble(
+      x = seq(.01, 17.5, .01),
+      y = dchisq(x, df)
+    )
+
+    if (test >= 8.5){
+      lab_x    <- test - .5
+      lab_just <- "left"
+    } else {
+      lab_x    <- test + .5
+      lab_just <- "right"
+    }
 
     validate(
       need(input$chi_df != 0, "Degrees of freedom must be greater than zero!")
     )
 
-    p <- ggplot(data.frame(x = c(0.001, 40)), aes(x))
-    p <- p + stat_function(fun = dchisq, args = list(df = df))
-    p <- p + geom_vline(xintercept = qchisq(1 - alpha, df = df),
-                        linetype = "longdash", colour = "red")
-    p <- p + ylim(0, .42) + ylab("P(x)")
-    p <- p + theme_bw()
+    p <- ggplot(chidf, aes(x, y))
+    p <- p + geom_line()
+    p <- p + geom_ribbon(data = subset(chidf, x >= crit),
+                         aes(ymin = 0, ymax = y), fill = "#99004d", alpha = .5)
+    p <- p + geom_ribbon(data = subset(chidf, x >= test),
+                         aes(ymin = 0, ymax = y), fill = "#99004d", alpha = .3)
+    p <- p + geom_segment(aes(y = 0, yend = dchisq(crit, df) + .02,
+                              x = crit, xend = crit),
+                          linetype = "dotted", colour = "#99004d")
+    p <- p + geom_segment(aes(y = 0, yend = dchisq(test, df) + .02,
+                              x = test, xend = test), size = .5,
+                          linetype = "longdash", colour = "#99004d")
+    # p <- p + geom_text(aes(label = "empirical value", x = lab_x,
+    #                         y = dchisq(test, df) + .02), size = 6,
+    #                     vjust = lab_just, color = "#99004d")
+    if (df == 1){
+      p <- p + scale_y_continuous(labels = NULL, limits = c(0, .2))
+      p <- p + labs(y = "Density", x = expression(chi^2),
+                    caption = "zoom factor: 500%")
+    } else {
+      p <- p + scale_y_continuous(labels = NULL)
+      p <- p + labs(y = "Density", x = expression(chi^2))
+    }
     print(p)
   })
 
@@ -125,7 +156,6 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = crit_f(alpha, df1, df2),
                         linetype = "longdash", colour = "red")
     p <- p + ylab("P(x)")
-    p <- p + theme_bw()
     print(p)
   })
 
@@ -176,5 +206,45 @@ shinyServer(function(input, output) {
 
     return(tab)
 
+  })
+
+  #### Law of Large Numbers ####
+  output$plot_lln <- renderPlot({
+    n <- input$lln_sample_size
+
+    validate(need(input$lln_sample_size < 10000, "Please! Our servers can't take that much coin tossing!!\nPlease select a sample size less than 10.000"))
+
+    s1 <- sample(c(1, 2), n, replace = T)
+
+    s2 <- map_dbl(seq_along(s1), function(x){
+      i <- s1[1:x]
+      length(i[i == 1]) / length(i)
+    })
+
+    s3 <- tibble(
+      x = seq_along(s1),
+      result = ifelse(s1 == 1, "Heads", "Tails"),
+      p_heads = s2,
+      p_tails = 1 - s2
+    )
+
+    # needs... more thought
+    if (n <= 100){
+      pt_size <- 1
+    } else {
+      pt_size <- .5
+    }
+
+    ggplot(s3, aes(x = x, y = p_heads)) +
+      geom_point(size = .75, alpha = .3) +
+      geom_hline(aes(yintercept = 1/2), size = pt_size, color = "red") +
+      labs(# title = "Das Gesetz der großen Zahl",
+        title = paste('Häufigkeit von "Kopf" bei', n, 'Münzwürfen'),
+        y = "rel. Häufigkeit", x = "Münzwürfe") +
+      # annotate("label", x = 1000, y = .40, label = "erwartete Häufigkeit", alpha = .8,
+      #          fill = "red", color = "white", size = 4, label.padding = unit(.35, "lines")) +
+      scale_x_continuous(breaks = scales::pretty_breaks()) +
+      scale_y_continuous(breaks = scales::pretty_breaks(),
+                         labels = scales::percent_format())
   })
 })
