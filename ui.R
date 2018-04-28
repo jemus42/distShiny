@@ -65,11 +65,18 @@ shinyUI(
     ),
     tabPanel("Law of Large Numbers", icon = icon("bar-chart"),
              h2("The Law of Large Numbers"),
-             inputPanel(
-               numericInput("lln_sample_size", label = "Sample Size", min = 2, value = 100, step = 1)
-               # selectInput("lln_example", label = "Event Type", choices = c(
-               #   "Coin Toss", "6-sided Dice"
-               # ))
+             conditionalPanel("input.lln_begin == 0",
+                              inputPanel(
+                                actionButton("lln_begin", "Toss a coin 10 times!")
+                              )
+             ),
+             conditionalPanel("input.lln_begin != 0",
+                              inputPanel(
+                                actionButton("lln_add_1", "Toss once more"),
+                                actionButton("lln_add_10", "Toss 10 times"),
+                                actionButton("lln_add_100", "Toss 100 times"),
+                                actionButton("lln_reset", "Reset")
+                              )
              ),
              plotOutput("plot_lln")
     ),

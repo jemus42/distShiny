@@ -9,18 +9,40 @@ shinyServer(function(input, output) {
     alpha     <- as.numeric(input$norm_alpha)
     direction <- input$norm_sides
     ymax      <- dnorm(mean, mean = mean, sd = se)
+    p_val     <- 1 - .23 # as.numeric(input$z_test)
+    test      <- qnorm(p_val, mean, sd)
+    crit_r    <- qnorm(1 - alpha, mean, sd)
+    crit_l    <- qnorm(alpha, mean, sd)
 
     validate(need(input$norm_sd != 0, "Standard deviation must be greater than zero!"))
     validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
     validate(need(!is.na(input$norm_mean), "Mean must be set!"))
 
-    df <- data.frame(x = c(mean-4*se, mean+4*se))
+    normdf <- tibble(
+      x = seq(-20, 20, .01),
+      y = dnorm(x, mean, sd)
+    )
 
-    p <- ggplot(data = df, aes(x = x))
-    p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = se))
-    p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
-                        linetype = "longdash", colour = "red")
-    p <- p + ylim(0, ymax) + ylab("P(x)")
+    p <- ggplot(normdf, aes(x, y))
+    p <- p + geom_line()
+    p <- p + geom_ribbon(data = subset(normdf, x >= crit_r),
+                         aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+    p <- p + geom_ribbon(data = subset(normdf, x <= crit_l),
+                         aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+    p <- p + geom_ribbon(data = subset(normdf, x <= test),
+                         aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .3)
+
+
+
+    # alter scheiss
+    #
+    # df <- data.frame(x = c(mean-4*se, mean+4*se))
+
+    # p <- ggplot(data = df, aes(x = x))
+    # p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = se))
+    # p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
+    #                     linetype = "longdash", colour = "red")
+    # p <- p + ylim(0, ymax) + ylab("P(x)")
     print(p)
   })
 
@@ -209,42 +231,71 @@ shinyServer(function(input, output) {
   })
 
   #### Law of Large Numbers ####
+  lln <- reactiveValues(p = NULL)
+  obs <- reactiveValues(n = NULL)
+
+  observeEvent(input$lln_reset, {
+    lln$p <- NULL
+    obs$n <- NULL
+  })
+
+  observeEvent(input$lln_begin, {
+    lln$p <- sample(c("Heads", "Tails"), 10, replace = TRUE)
+    obs$n <- length(lln$p)
+  })
+
+  observeEvent(input$lln_add_1, {
+    p1 <- sample(c("Heads", "Tails"), 1, replace = TRUE)
+
+    lln$p <- c(lln$p, p1)
+    obs$n <- length(lln$p)
+  })
+
+  observeEvent(input$lln_add_10, {
+    p10 <- sample(c("Heads", "Tails"), 10, replace = TRUE)
+
+    lln$p <- c(lln$p, p10)
+    obs$n <- length(lln$p)
+  })
+
+  observeEvent(input$lln_add_100, {
+    p100 <- sample(c("Heads", "Tails"), 100, replace = TRUE)
+
+    lln$p <- c(lln$p, p100)
+    obs$n <- length(lln$p)
+  })
+
   output$plot_lln <- renderPlot({
-    n <- input$lln_sample_size
-
-    validate(need(input$lln_sample_size < 10000, "Please! Our servers can't take that much coin tossing!!\nPlease select a sample size less than 10.000"))
-
-    s1 <- sample(c(1, 2), n, replace = T)
-
-    s2 <- map_dbl(seq_along(s1), function(x){
-      i <- s1[1:x]
-      length(i[i == 1]) / length(i)
-    })
-
-    s3 <- tibble(
-      x = seq_along(s1),
-      result = ifelse(s1 == 1, "Heads", "Tails"),
-      p_heads = s2,
-      p_tails = 1 - s2
-    )
-
-    # needs... more thought
-    if (n <= 100){
-      pt_size <- 1
+    if (is.null(lln$p)) return()
+    g <- tibble(
+      r = lln$p,
+      x = seq_along(lln$p),
+      y = map_dbl(seq_along(r), function(x){
+        i <- lln$p[1:x]
+        length(i[i == "Heads"]) / length(i)
+      })
+    ) %>% ggplot(aes(x, y))
+    # resize points by number of tosses;
+    # needs complete overhaul
+    if (obs$n <= 50) {
+      g <- g + geom_point(size = 3, alpha = .7)
     } else {
-      pt_size <- .5
+      if (obs$n <= 100) {
+        g <- g + geom_point(size = 2, alpha = .6)
+      } else {
+        g <- g + geom_point(size = 1.5, alpha = .5)
+      }
     }
+    g <- g + geom_hline(aes(yintercept = 1/2), size = .5, color = "red")
+    g <- g + scale_x_continuous(breaks = scales::pretty_breaks())
+    g <- g + scale_y_continuous(breaks = scales::pretty_breaks(),
+                                labels = scales::percent_format())
+    g <- g + labs(title = paste('Observed percentage of "Heads" in', obs$n, "coin tosses"),
+                  y = NULL, x = "Coin Tosses")
+    print(g)
+  })
 
-    ggplot(s3, aes(x = x, y = p_heads)) +
-      geom_point(size = .75, alpha = .3) +
-      geom_hline(aes(yintercept = 1/2), size = pt_size, color = "red") +
-      labs(# title = "Das Gesetz der großen Zahl",
-        title = paste('Häufigkeit von "Kopf" bei', n, 'Münzwürfen'),
-        y = "rel. Häufigkeit", x = "Münzwürfe") +
-      # annotate("label", x = 1000, y = .40, label = "erwartete Häufigkeit", alpha = .8,
-      #          fill = "red", color = "white", size = 4, label.padding = unit(.35, "lines")) +
-      scale_x_continuous(breaks = scales::pretty_breaks()) +
-      scale_y_continuous(breaks = scales::pretty_breaks(),
-                         labels = scales::percent_format())
+  output$lln_text <- renderText({
+    obs$n
   })
 })
