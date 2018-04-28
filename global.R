@@ -1,5 +1,6 @@
 library("shiny")
 library("dplyr")
+library("purrr")
 library("ggplot2")
 library("rmarkdown")
 
