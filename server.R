@@ -38,6 +38,15 @@ shinyServer(function(input, output) {
       }
     }
     p <- p + geom_vline(xintercept = ztest, linetype = "longdash", color = "dark blue")
+    p <- p + scale_x_continuous(
+      breaks   = scales::pretty_breaks(),
+      sec.axis = sec_axis(~. * se + mean,
+                          breaks = scales::pretty_breaks(),
+                          name = "x")
+    )
+    p <- p + labs(
+      x = "z", y = "P(x)"
+    )
     # p <- p + geom_ribbon(data = subset(normdf, x <= test),
     #                      aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .3)
 
