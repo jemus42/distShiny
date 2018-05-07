@@ -4,33 +4,42 @@ shinyServer(function(input, output) {
   output$plot_norm <- renderPlot({
     n         <- ceiling(input$norm_n)
     mean      <- input$norm_mean
+    xtest     <- input$norm_test
     sd        <- input$norm_sd
     se        <- sd/sqrt(n)
+    ztest     <- (xtest - mean) / se
     alpha     <- as.numeric(input$norm_alpha)
     direction <- input$norm_sides
-    ymax      <- dnorm(mean, mean = mean, sd = se)
-    p_val     <- 1 - .23 # as.numeric(input$z_test)
-    test      <- qnorm(p_val, mean, sd)
-    crit_r    <- qnorm(1 - alpha, mean, sd)
-    crit_l    <- qnorm(alpha, mean, sd)
+    # ymax      <- dnorm(mean, mean = mean, sd = se)
 
     validate(need(input$norm_sd != 0, "Standard deviation must be greater than zero!"))
     validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
     validate(need(!is.na(input$norm_mean), "Mean must be set!"))
 
     normdf <- tibble(
-      x = seq(-20, 20, .01),
-      y = dnorm(x, mean, sd)
+      x = seq(-4, 4, .02),
+      y = dnorm(x)
     )
 
     p <- ggplot(normdf, aes(x, y))
     p <- p + geom_line()
-    p <- p + geom_ribbon(data = subset(normdf, x >= crit_r),
-                         aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
-    p <- p + geom_ribbon(data = subset(normdf, x <= crit_l),
-                         aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
-    p <- p + geom_ribbon(data = subset(normdf, x <= test),
-                         aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .3)
+    if (direction == "left") {
+      p <- p + geom_ribbon(data = subset(normdf, x <= crit_z(alpha, direction)),
+                           aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+    } else {
+      if (direction == "right") {
+        p <- p + geom_ribbon(data = subset(normdf, x >= crit_z(alpha, direction)),
+                             aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+      } else {
+        p <- p + geom_ribbon(data = subset(normdf, x <= crit_z(alpha, direction)[1]),
+                             aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+        p <- p + geom_ribbon(data = subset(normdf, x >= crit_z(alpha, direction)[2]),
+                             aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+      }
+    }
+    p <- p + geom_vline(xintercept = ztest, linetype = "longdash", color = "dark blue")
+    # p <- p + geom_ribbon(data = subset(normdf, x <= test),
+    #                      aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .3)
 
 
 

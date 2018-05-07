@@ -6,8 +6,9 @@ shinyUI(
         tabPanel("Normal Distribution",
           h2("Normal Distribution & Significance Testing"),
           inputPanel(
-            numericInput("norm_mean", label = "Mean", value = 0, step = .1),
-            numericInput("norm_sd",   label = "Standard Deviation", value = 1, min = .01, step = .1),
+            numericInput("norm_mean", label = "Mean", value = 100, step = 1),
+            numericInput("norm_test", label = "x-test", value = 100, step = 1),
+            numericInput("norm_sd",   label = "Standard Deviation", value = 15, min = .1, step = .1),
             numericInput("norm_n",    label = "Sample Size", value = 1, min = 1, step = 1),
             selectInput("norm_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("norm_sides", label = "Direction", choices = side.choices)
