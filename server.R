@@ -17,7 +17,7 @@ shinyServer(function(input, output) {
     validate(need(!is.na(input$norm_mean), "Mean must be set!"))
 
     normdf <- tibble(
-      x = seq(-4, 4, .02),
+      x = seq(-4, 4, .01),
       y = dnorm(x)
     )
 
@@ -25,19 +25,19 @@ shinyServer(function(input, output) {
     p <- p + geom_line()
     if (direction == "left") {
       p <- p + geom_ribbon(data = subset(normdf, x <= crit_z(alpha, direction)),
-                           aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+                           aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
     } else {
       if (direction == "right") {
         p <- p + geom_ribbon(data = subset(normdf, x >= crit_z(alpha, direction)),
-                             aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+                             aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
       } else {
         p <- p + geom_ribbon(data = subset(normdf, x <= crit_z(alpha, direction)[1]),
-                             aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+                             aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
         p <- p + geom_ribbon(data = subset(normdf, x >= crit_z(alpha, direction)[2]),
-                             aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .5)
+                             aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
       }
     }
-    p <- p + geom_vline(xintercept = ztest, linetype = "longdash", color = "dark blue")
+    p <- p + geom_vline(xintercept = ztest, linetype = "longdash", color = "#007acc")
     p <- p + scale_x_continuous(
       breaks   = scales::pretty_breaks(),
       sec.axis = sec_axis(~. * se + mean,
@@ -120,7 +120,7 @@ shinyServer(function(input, output) {
     }
   })
 
-  #### Chi^2-distribution
+  #### Chi^2-distribution ####
   output$plot_chisq <- renderPlot({
     df        <- input$chi_df
     alpha     <- as.numeric(input$chi_alpha)
@@ -133,13 +133,18 @@ shinyServer(function(input, output) {
       y = dchisq(x, df)
     )
 
-    if (test >= 8.5){
-      lab_x    <- test - .5
-      lab_just <- "left"
-    } else {
-      lab_x    <- test + .5
-      lab_just <- "right"
+    if (df == 1) {
+      chidf$y <- ifelse(chidf$y > .2, .2, chidf$y)
+      # chidf <- subset(chidf, x < 5)
     }
+
+    # if (test >= 8.5){
+    #   lab_x    <- test - .5
+    #   lab_just <- "left"
+    # } else {
+    #   lab_x    <- test + .5
+    #   lab_just <- "right"
+    # }
 
     validate(
       need(input$chi_df != 0, "Degrees of freedom must be greater than zero!")
@@ -151,15 +156,11 @@ shinyServer(function(input, output) {
                          aes(ymin = 0, ymax = y), fill = "#99004d", alpha = .5)
     p <- p + geom_ribbon(data = subset(chidf, x >= test),
                          aes(ymin = 0, ymax = y), fill = "#99004d", alpha = .3)
-    p <- p + geom_segment(aes(y = 0, yend = dchisq(crit, df) + .02,
-                              x = crit, xend = crit),
-                          linetype = "dotted", colour = "#99004d")
-    p <- p + geom_segment(aes(y = 0, yend = dchisq(test, df) + .02,
-                              x = test, xend = test), size = .5,
-                          linetype = "longdash", colour = "#99004d")
+    p <- p + geom_segment(aes(y = 0, yend = dchisq(test, df), x = test, xend = test),
+                          size = .5, linetype = "longdash", colour = "#99004d")
     # p <- p + geom_text(aes(label = "empirical value", x = lab_x,
-    #                         y = dchisq(test, df) + .02), size = 6,
-    #                     vjust = lab_just, color = "#99004d")
+                        #     y = dchisq(test, df) + .02), size = 6,
+                        # vjust = lab_just, color = "#99004d")
     if (df == 1){
       p <- p + scale_y_continuous(labels = NULL, limits = c(0, .2))
       p <- p + labs(y = "Density", x = expression(chi^2),
