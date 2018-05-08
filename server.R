@@ -4,24 +4,63 @@ shinyServer(function(input, output) {
   output$plot_norm <- renderPlot({
     n         <- ceiling(input$norm_n)
     mean      <- input$norm_mean
+    xtest     <- input$norm_test
     sd        <- input$norm_sd
     se        <- sd/sqrt(n)
+    ztest     <- (xtest - mean) / se
     alpha     <- as.numeric(input$norm_alpha)
     direction <- input$norm_sides
-    ymax      <- dnorm(mean, mean = mean, sd = se)
+    # ymax      <- dnorm(mean, mean = mean, sd = se)
 
     validate(need(input$norm_sd != 0, "Standard deviation must be greater than zero!"))
     validate(need(input$norm_n != 0, "Sample size must be greater than zero!"))
     validate(need(!is.na(input$norm_mean), "Mean must be set!"))
 
-    df <- data.frame(x = c(mean-4*se, mean+4*se))
+    normdf <- tibble(
+      x = seq(-4, 4, .01),
+      y = dnorm(x)
+    )
 
-    p <- ggplot(data = df, aes(x = x))
-    p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = se))
-    p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
-                        linetype = "longdash", colour = "red")
-    p <- p + ylim(0, ymax) + ylab("P(x)")
-    p <- p + theme_bw()
+    p <- ggplot(normdf, aes(x, y))
+    p <- p + geom_line()
+    if (direction == "left") {
+      p <- p + geom_ribbon(data = subset(normdf, x <= crit_z(alpha, direction)),
+                           aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
+    } else {
+      if (direction == "right") {
+        p <- p + geom_ribbon(data = subset(normdf, x >= crit_z(alpha, direction)),
+                             aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
+      } else {
+        p <- p + geom_ribbon(data = subset(normdf, x <= crit_z(alpha, direction)[1]),
+                             aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
+        p <- p + geom_ribbon(data = subset(normdf, x >= crit_z(alpha, direction)[2]),
+                             aes(ymin = 0, ymax = y), fill = "#66c2ff", alpha = .7)
+      }
+    }
+    p <- p + geom_vline(xintercept = ztest, linetype = "longdash", color = "#007acc")
+    p <- p + scale_x_continuous(
+      breaks   = scales::pretty_breaks(),
+      sec.axis = sec_axis(~. * se + mean,
+                          breaks = scales::pretty_breaks(),
+                          name = "x")
+    )
+    p <- p + labs(
+      x = "z", y = "P(x)"
+    )
+    # p <- p + geom_ribbon(data = subset(normdf, x <= test),
+    #                      aes(ymin = 0, ymax = y), fill = "#007acc", alpha = .3)
+
+
+
+    # alter scheiss
+    #
+    # df <- data.frame(x = c(mean-4*se, mean+4*se))
+
+    # p <- ggplot(data = df, aes(x = x))
+    # p <- p + stat_function(fun = dnorm, args = list(mean = mean, sd = se))
+    # p <- p + geom_vline(xintercept = ((crit_z(alpha, direction) * se) + mean),
+    #                     linetype = "longdash", colour = "red")
+    # p <- p + ylim(0, ymax) + ylab("P(x)")
     print(p)
   })
 
@@ -63,7 +102,6 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = crit_t(alpha, direction, df, ncp),
                         linetype = "longdash", colour = "red")
     p <- p + ylim(0, .42) + ylab("P(x)")
-    p <- p + theme_bw()
     print(p)
   })
 
@@ -82,21 +120,55 @@ shinyServer(function(input, output) {
     }
   })
 
-  #### Chi^2-distribution
+  #### Chi^2-distribution ####
   output$plot_chisq <- renderPlot({
     df        <- input$chi_df
     alpha     <- as.numeric(input$chi_alpha)
+    crit      <- qchisq(1 - alpha, df)
+    p         <- 1 - as.numeric(input$chi_test)
+    test      <- qchisq(p, df)
+
+    chidf <- tibble(
+      x = seq(.01, 17.5, .01),
+      y = dchisq(x, df)
+    )
+
+    if (df == 1) {
+      chidf$y <- ifelse(chidf$y > .2, .2, chidf$y)
+      # chidf <- subset(chidf, x < 5)
+    }
+
+    # if (test >= 8.5){
+    #   lab_x    <- test - .5
+    #   lab_just <- "left"
+    # } else {
+    #   lab_x    <- test + .5
+    #   lab_just <- "right"
+    # }
 
     validate(
       need(input$chi_df != 0, "Degrees of freedom must be greater than zero!")
     )
 
-    p <- ggplot(data.frame(x = c(0.001, 40)), aes(x))
-    p <- p + stat_function(fun = dchisq, args = list(df = df))
-    p <- p + geom_vline(xintercept = qchisq(1 - alpha, df = df),
-                        linetype = "longdash", colour = "red")
-    p <- p + ylim(0, .42) + ylab("P(x)")
-    p <- p + theme_bw()
+    p <- ggplot(chidf, aes(x, y))
+    p <- p + geom_line()
+    p <- p + geom_ribbon(data = subset(chidf, x >= crit),
+                         aes(ymin = 0, ymax = y), fill = "#99004d", alpha = .5)
+    p <- p + geom_ribbon(data = subset(chidf, x >= test),
+                         aes(ymin = 0, ymax = y), fill = "#99004d", alpha = .3)
+    p <- p + geom_segment(aes(y = 0, yend = dchisq(test, df), x = test, xend = test),
+                          size = .5, linetype = "longdash", colour = "#99004d")
+    # p <- p + geom_text(aes(label = "empirical value", x = lab_x,
+                        #     y = dchisq(test, df) + .02), size = 6,
+                        # vjust = lab_just, color = "#99004d")
+    if (df == 1){
+      p <- p + scale_y_continuous(labels = NULL, limits = c(0, .2))
+      p <- p + labs(y = "Density", x = expression(chi^2),
+                    caption = "zoom factor: 500%")
+    } else {
+      p <- p + scale_y_continuous(labels = NULL)
+      p <- p + labs(y = "Density", x = expression(chi^2))
+    }
     print(p)
   })
 
@@ -125,7 +197,6 @@ shinyServer(function(input, output) {
     p <- p + geom_vline(xintercept = crit_f(alpha, df1, df2),
                         linetype = "longdash", colour = "red")
     p <- p + ylab("P(x)")
-    p <- p + theme_bw()
     print(p)
   })
 
@@ -176,5 +247,74 @@ shinyServer(function(input, output) {
 
     return(tab)
 
+  })
+
+  #### Law of Large Numbers ####
+  lln <- reactiveValues(p = NULL)
+  obs <- reactiveValues(n = NULL)
+
+  observeEvent(input$lln_reset, {
+    lln$p <- NULL
+    obs$n <- NULL
+  })
+
+  observeEvent(input$lln_begin, {
+    lln$p <- sample(c("Heads", "Tails"), 10, replace = TRUE)
+    obs$n <- length(lln$p)
+  })
+
+  observeEvent(input$lln_add_1, {
+    p1 <- sample(c("Heads", "Tails"), 1, replace = TRUE)
+
+    lln$p <- c(lln$p, p1)
+    obs$n <- length(lln$p)
+  })
+
+  observeEvent(input$lln_add_10, {
+    p10 <- sample(c("Heads", "Tails"), 10, replace = TRUE)
+
+    lln$p <- c(lln$p, p10)
+    obs$n <- length(lln$p)
+  })
+
+  observeEvent(input$lln_add_100, {
+    p100 <- sample(c("Heads", "Tails"), 100, replace = TRUE)
+
+    lln$p <- c(lln$p, p100)
+    obs$n <- length(lln$p)
+  })
+
+  output$plot_lln <- renderPlot({
+    if (is.null(lln$p)) return()
+    g <- tibble(
+      r = lln$p,
+      x = seq_along(lln$p),
+      y = map_dbl(seq_along(r), function(x){
+        i <- lln$p[1:x]
+        length(i[i == "Heads"]) / length(i)
+      })
+    ) %>% ggplot(aes(x, y))
+    # resize points by number of tosses;
+    # needs complete overhaul
+    if (obs$n <= 50) {
+      g <- g + geom_point(size = 3, alpha = .7)
+    } else {
+      if (obs$n <= 100) {
+        g <- g + geom_point(size = 2, alpha = .6)
+      } else {
+        g <- g + geom_point(size = 1.5, alpha = .5)
+      }
+    }
+    g <- g + geom_hline(aes(yintercept = 1/2), size = .5, color = "red")
+    g <- g + scale_x_continuous(breaks = scales::pretty_breaks())
+    g <- g + scale_y_continuous(breaks = scales::pretty_breaks(),
+                                labels = scales::percent_format())
+    g <- g + labs(title = paste('Observed percentage of "Heads" in', obs$n, "coin tosses"),
+                  y = NULL, x = "Coin Tosses")
+    print(g)
+  })
+
+  output$lln_text <- renderText({
+    obs$n
   })
 })

@@ -6,8 +6,9 @@ shinyUI(
         tabPanel("Normal Distribution",
           h2("Normal Distribution & Significance Testing"),
           inputPanel(
-            numericInput("norm_mean", label = "Mean", value = 0, step = .1),
-            numericInput("norm_sd",   label = "Standard Deviation", value = 1, min = .01, step = .1),
+            numericInput("norm_mean", label = "Mean", value = 100, step = 1),
+            numericInput("norm_test", label = "x-test", value = 100, step = 1),
+            numericInput("norm_sd",   label = "Standard Deviation", value = 15, min = .1, step = .1),
             numericInput("norm_n",    label = "Sample Size", value = 1, min = 1, step = 1),
             selectInput("norm_alpha", label = "Alpha", choices = alpha.choices),
             selectInput("norm_sides", label = "Direction", choices = side.choices)
@@ -30,7 +31,8 @@ shinyUI(
           h2("Chi^2-Distribution & Significance Testing"),
           inputPanel(
             numericInput("chi_df",   label = "Degrees of Freedom", min = 1, value = 1, step = 1),
-            selectInput("chi_alpha", label = "Alpha", choices = alpha.choices)
+            selectInput("chi_alpha", label = "Alpha", choices = alpha.choices),
+            sliderInput("chi_test",  label = "p-Value", min = 0, max = 1, step = .01, value = .5)
           ),
           h3(textOutput("data_chi")),
           plotOutput("plot_chisq")
@@ -61,6 +63,29 @@ shinyUI(
                          tableOutput("error_table")),
                 plotOutput("plot_errors")
        )
+    ),
+    tabPanel("Law of Large Numbers", icon = icon("bar-chart"),
+             h2("The Law of Large Numbers"),
+             conditionalPanel("input.lln_begin == 0",
+                              inputPanel(
+                                actionButton("lln_begin", "Toss a coin 10 times!")
+                              )
+             ),
+             conditionalPanel("input.lln_begin != 0",
+                              inputPanel(
+                                actionButton("lln_add_1", "Toss once more"),
+                                actionButton("lln_add_10", "Toss 10 times"),
+                                actionButton("lln_add_100", "Toss 100 times"),
+                                actionButton("lln_reset", "Reset")
+                              )
+             ),
+             plotOutput("plot_lln")
+    ),
+    tabPanel("Central Limit Theorem", icon = icon("bar-chart"),
+             h2("The Central Limit Theorem"),
+             inputPanel(
+               numericInput("clt_sample_size", label = "Sample Size", min = 2, value = 10, step = 1)
+             )
     ),
     tabPanel("About", icon = icon("question"),
       includeMarkdown("about.md")
